@@ -585,3 +585,175 @@ DATA.grammar = [
   ['Would you like ___ tea?', ['any', 'some', 'many', 'few'], 1, 'В предложениях и просьбах — some.']
 ]}
 ];
+
+// Фразы для «Собери фразу» и «Диктанта»: "english|перевод"
+DATA.phrases = {
+A1: `
+I am from Russia.|Я из России.
+My name is Anna.|Меня зовут Анна.
+Where is the station?|Где вокзал?
+I like coffee with milk.|Я люблю кофе с молоком.
+She has two brothers.|У неё два брата.
+We live in a small flat.|Мы живём в маленькой квартире.
+The shop opens at nine.|Магазин открывается в девять.
+How much is this bag?|Сколько стоит эта сумка?
+I don't understand you.|Я тебя не понимаю.
+Can you help me, please?|Не могли бы вы мне помочь?
+It is cold today.|Сегодня холодно.
+He works in a big office.|Он работает в большом офисе.
+I go to bed at eleven.|Я ложусь спать в одиннадцать.
+Do you speak English?|Ты говоришь по-английски?
+My sister is a doctor.|Моя сестра — врач.
+I want a cup of tea.|Я хочу чашку чая.
+They are at home now.|Они сейчас дома.
+What time is it?|Который час?
+I read books every evening.|Я читаю книги каждый вечер.
+This is my new phone.|Это мой новый телефон.
+`,
+A2: `
+I have never been to London.|Я никогда не был в Лондоне.
+We went to the cinema yesterday.|Вчера мы ходили в кино.
+I am going to buy a new car.|Я собираюсь купить новую машину.
+She is taller than her brother.|Она выше своего брата.
+Could you open the window, please?|Не могли бы вы открыть окно?
+I have already finished my work.|Я уже закончил свою работу.
+What are you doing this weekend?|Что ты делаешь в эти выходные?
+It was the best day of my life.|Это был лучший день в моей жизни.
+I usually get up at seven.|Обычно я встаю в семь.
+You should see a doctor.|Тебе стоит сходить к врачу.
+I lost my keys this morning.|Сегодня утром я потерял ключи.
+How long have you lived here?|Как долго ты здесь живёшь?
+Let's meet at the station.|Давай встретимся на вокзале.
+I'm looking for a cheap hotel.|Я ищу недорогой отель.
+He was reading when I called.|Он читал, когда я позвонил.
+There isn't any milk in the fridge.|В холодильнике нет молока.
+Can I pay by card?|Можно оплатить картой?
+I don't have enough time.|У меня недостаточно времени.
+My flight leaves at six.|Мой рейс вылетает в шесть.
+We had a great time.|Мы отлично провели время.
+`,
+B1: `
+If it rains, we will stay at home.|Если пойдёт дождь, мы останемся дома.
+I'm looking forward to seeing you.|С нетерпением жду встречи с тобой.
+She managed to pass the exam.|Ей удалось сдать экзамен.
+I'm used to getting up early.|Я привык рано вставать.
+This film is worth watching.|Этот фильм стоит посмотреть.
+He asked me where I lived.|Он спросил меня, где я живу.
+The house was built in 1990.|Дом был построен в 1990 году.
+I can't afford a new laptop.|Я не могу позволить себе новый ноутбук.
+We ran out of coffee.|У нас закончился кофе.
+I would travel more if I had money.|Я бы путешествовал больше, если бы у меня были деньги.
+You don't have to come early.|Тебе не обязательно приходить рано.
+It depends on the weather.|Это зависит от погоды.
+I suggest we take a taxi.|Предлагаю взять такси.
+She has been working here for five years.|Она работает здесь уже пять лет.
+I didn't expect to see you here.|Не ожидал увидеть тебя здесь.
+Although it was late, we went out.|Хотя было поздно, мы пошли гулять.
+He refused to answer my question.|Он отказался отвечать на мой вопрос.
+I get along well with my colleagues.|Я хорошо лажу с коллегами.
+Don't put off important decisions.|Не откладывай важные решения.
+I've been learning English for a year.|Я учу английский уже год.
+`,
+B2: `
+If I had known, I would have helped you.|Если бы я знал, я бы тебе помог.
+Despite the rain, the match continued.|Несмотря на дождь, матч продолжился.
+She is reluctant to change her plans.|Она не хочет менять свои планы.
+We need to take everything into account.|Нам нужно всё принять во внимание.
+I wish I had studied harder at school.|Жаль, что я не учился усерднее в школе.
+By the time we arrived, the film had started.|К тому времени, как мы пришли, фильм уже начался.
+He is said to be very rich.|Говорят, что он очень богат.
+It's no use worrying about it.|Нет смысла об этом беспокоиться.
+I'd rather stay at home tonight.|Я бы предпочёл остаться сегодня дома.
+The more you practise, the better you get.|Чем больше практикуешься, тем лучше получается.
+Hardly anyone came to the meeting.|На встречу почти никто не пришёл.
+You'd better leave now.|Тебе лучше уйти сейчас.
+She ended up working abroad.|В итоге она стала работать за границей.
+Not only is he smart, but he is also kind.|Он не только умён, но и добр.
+I came across an interesting article.|Я наткнулся на интересную статью.
+`
+};
+
+// Диалоги: ['them', фраза, перевод] или ['me', [верный, неверный, неверный], перевод верного]
+DATA.dialogs = [
+{ id: 'cafe', title: 'В кафе', lv: 'A1', lines: [
+  ['them', 'Hi! What can I get you?', 'Привет! Что вам предложить?'],
+  ['me', ['A large latte, please.', "I'm twenty years old.", 'Nice to meet you.'], 'Большой латте, пожалуйста.'],
+  ['them', 'Would you like anything to eat?', 'Хотите что-нибудь поесть?'],
+  ['me', ['Yes, a croissant, please.', "No, I'm from London.", "It's on the left."], 'Да, круассан, пожалуйста.'],
+  ['them', 'For here or to go?', 'Здесь или с собой?'],
+  ['me', ['To go, please.', 'Every day.', "I'm fine, thanks."], 'С собой, пожалуйста.'],
+  ['them', "That's six fifty.", 'С вас шесть пятьдесят.'],
+  ['me', ['Can I pay by card?', "What's your name?", 'See you tomorrow!'], 'Можно оплатить картой?'],
+  ['them', 'Sure. Have a nice day!', 'Конечно. Хорошего дня!']
+]},
+{ id: 'meet', title: 'Знакомство', lv: 'A1', lines: [
+  ['them', "Hi, I'm Tom. What's your name?", 'Привет, я Том. Как тебя зовут?'],
+  ['me', ["I'm Max. Nice to meet you!", "I'm fine, and you?", "It's ten o'clock."], 'Я Макс. Приятно познакомиться!'],
+  ['them', 'Nice to meet you too. Where are you from?', 'Мне тоже. Откуда ты?'],
+  ['me', ["I'm from Russia.", "I'm a student.", 'Yes, I do.'], 'Я из России.'],
+  ['them', 'Cool! What do you do?', 'Круто! Чем ты занимаешься?'],
+  ['me', ['I work in IT.', 'I do it every day.', "I'm doing well."], 'Я работаю в IT.'],
+  ['them', 'How long have you been here?', 'Как долго ты здесь?'],
+  ['me', ['For two weeks.', 'Since tomorrow.', 'Two weeks ago.'], 'Две недели.'],
+  ['them', "Great! Let's grab a coffee sometime.", 'Здорово! Давай как-нибудь выпьем кофе.']
+]},
+{ id: 'hotel', title: 'В отеле', lv: 'A2', lines: [
+  ['them', 'Good evening! How can I help you?', 'Добрый вечер! Чем могу помочь?'],
+  ['me', ['I have a reservation for two nights.', "I'd like a table for two.", "I'm just looking, thanks."], 'У меня бронь на две ночи.'],
+  ['them', 'May I have your name, please?', 'Назовите, пожалуйста, вашу фамилию.'],
+  ['me', ["Sure, it's Ivanov.", "It's on the second floor.", "I don't like it."], 'Конечно, Иванов.'],
+  ['them', 'Thank you. Here is your key. Room 305.', 'Спасибо. Вот ваш ключ. Номер 305.'],
+  ['me', ['What time is breakfast?', 'How old are you?', 'Where are you from?'], 'Во сколько завтрак?'],
+  ['them', 'From seven to ten in the restaurant.', 'С семи до десяти в ресторане.'],
+  ['me', ['Is there Wi-Fi in the room?', "I'm a doctor.", 'Yes, please.'], 'В номере есть Wi-Fi?'],
+  ['them', 'Yes, the password is on the card.', 'Да, пароль указан на карточке.']
+]},
+{ id: 'way', title: 'Спросить дорогу', lv: 'A2', lines: [
+  ['me', ['Excuse me, how do I get to the station?', "Excuse me, what's the time?", "Sorry, I'm late."], 'Извините, как пройти к вокзалу?'],
+  ['them', 'Go straight and turn left at the lights.', 'Идите прямо и поверните налево на светофоре.'],
+  ['me', ['Is it far from here?', 'Is it expensive?', 'Is it your car?'], 'Это далеко отсюда?'],
+  ['them', "No, it's about five minutes on foot.", 'Нет, примерно пять минут пешком.'],
+  ['me', ['Thank you so much!', "You're welcome.", 'Nice to meet you.'], 'Большое спасибо!'],
+  ['them', 'No problem. Have a good trip!', 'Не за что. Хорошей поездки!']
+]},
+{ id: 'shop', title: 'Магазин одежды', lv: 'A2', lines: [
+  ['them', 'Hi! Are you looking for anything special?', 'Здравствуйте! Ищете что-то конкретное?'],
+  ['me', ["I'm looking for a winter jacket.", "I'm looking forward to it.", 'I look after my sister.'], 'Я ищу зимнюю куртку.'],
+  ['them', 'What size are you?', 'Какой у вас размер?'],
+  ['me', ['Medium, I think.', "I'm thirty.", "It's black."], 'Думаю, M.'],
+  ['them', 'Here you are. The fitting rooms are over there.', 'Пожалуйста. Примерочные вон там.'],
+  ['me', ["It's a bit tight. Do you have a bigger size?", "It's a bit tight. Do you have a smaller size?", "I'll take the bus."], 'Тесновата. У вас есть размер побольше?'],
+  ['them', "Sure, here's a large.", 'Конечно, вот L.'],
+  ['me', ["Perfect, I'll take it.", 'I will think about my mind.', 'Perfect, I take it yesterday.'], 'Отлично, беру.']
+]},
+{ id: 'doctor', title: 'У врача', lv: 'B1', lines: [
+  ['them', 'Good morning. What seems to be the problem?', 'Доброе утро. На что жалуетесь?'],
+  ['me', ["I've had a headache for three days.", 'I have a headache since three days.', "I'm having a good time."], 'У меня уже три дня болит голова.'],
+  ['them', 'Do you have a temperature?', 'Температура есть?'],
+  ['me', ['Yes, it was 38 last night.', "Yes, it's 20 degrees outside.", "No, I don't have time."], 'Да, вчера вечером была 38.'],
+  ['them', 'Are you taking any medicine?', 'Принимаете какие-нибудь лекарства?'],
+  ['me', ['Just some painkillers.', 'Just some chocolate.', 'Just a moment.'], 'Только обезболивающее.'],
+  ['them', "OK. I'll write you a prescription. Rest and drink plenty of water.", 'Хорошо. Я выпишу рецепт. Отдыхайте и пейте больше воды.'],
+  ['me', ['Thank you, doctor.', "You're welcome, doctor.", 'Cheers, mate.'], 'Спасибо, доктор.']
+]},
+{ id: 'job', title: 'Собеседование', lv: 'B1', lines: [
+  ['them', 'Tell me a little about yourself.', 'Расскажите немного о себе.'],
+  ['me', ["I've been working as a designer for five years.", 'I work as a designer since five years.', "I'm working as a designer five years ago."], 'Я работаю дизайнером уже пять лет.'],
+  ['them', 'Why do you want to work for us?', 'Почему вы хотите работать у нас?'],
+  ['me', ["I'm impressed by your projects and I want to grow.", 'Because my friend told me so.', "I don't know, honestly."], 'Меня впечатляют ваши проекты, и я хочу расти.'],
+  ['them', 'What is your biggest strength?', 'Ваша главная сильная сторона?'],
+  ['me', ["I'm reliable and I learn fast.", "I'm reliable and I learn fastly.", 'My biggest strength is sleep.'], 'Я надёжный и быстро учусь.'],
+  ['them', 'Do you have any questions for us?', 'У вас есть вопросы к нам?'],
+  ['me', ['What would a typical day look like?', 'How much is it?', 'Where is the toilet?'], 'Как выглядит обычный рабочий день?'],
+  ['them', 'Great question! Let me explain.', 'Отличный вопрос! Сейчас расскажу.']
+]},
+{ id: 'small', title: 'Small talk с коллегой', lv: 'B2', lines: [
+  ['them', 'How was your weekend?', 'Как прошли выходные?'],
+  ['me', ['Pretty relaxing, actually. I caught up on some sleep.', "I'm relaxing pretty, actually.", 'I was weekend.'], 'Довольно спокойно. Наконец-то отоспался.'],
+  ['them', 'Lucky you! I spent the whole weekend moving house.', 'Везёт! А я все выходные переезжал.'],
+  ['me', ['Oh, that sounds exhausting. How did it go?', 'Oh, that sounds exhausted. How did it go?', 'Oh, happy birthday!'], 'О, звучит утомительно. Как всё прошло?'],
+  ['them', "Better than I expected, but I'm worn out.", 'Лучше, чем ожидал, но я вымотан.'],
+  ['me', ['If you need a hand with anything, let me know.', 'If you will need a hand, tell me.', 'Give me your hand.'], 'Если понадобится помощь — дай знать.'],
+  ['them', 'Thanks, I really appreciate it!', 'Спасибо, очень ценю!']
+]}
+];
