@@ -71,6 +71,7 @@ const ICONS = {
   zap: '<path d="M13 2L3 14h9l-1 8 10-12h-9z"/>',
   flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4.1 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
   vol: '<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/>',
+  volOff: '<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/>',
   layers: '<rect x="3" y="7" width="13" height="14" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   down: '<circle cx="12" cy="12" r="10"/><path d="M8 12l4 4 4-4M12 8v8"/>',
@@ -97,9 +98,9 @@ const ic = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" fill="non
 /* ================= Звуки (WebAudio, без файлов) ================= */
 let actx = null;
 function tone(freqs, dur = 0.09, type = 'sine', gap = 0.07, vol = 0.12) {
-  if (!S.sound) return;
+  if (!S.sound || isMuted()) return;
   try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    actx = actx ||new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
     const t0 = actx.currentTime + 0.01;
     freqs.forEach((f, i) => {
@@ -146,7 +147,68 @@ function confetti() {
   })(t0);
 }
 
-/* ================= Озвучка: лучший голос + выбор ================= */
+/* ================= Озвучка ================= */
+// Основной звук — заранее записанные нейросетевые голоса Kokoro (audio/<голос>/<ключ>.mp3).
+// Голос устройства — только запасной вариант (свои слова, или если выбран вручную).
+const VOICES = [
+  { id: 'af_heart', name: 'Heart', desc: 'Американский · женский · тёплый' },
+  { id: 'af_bella', name: 'Bella', desc: 'Американский · женский · живой' },
+  { id: 'am_michael', name: 'Michael', desc: 'Американский · мужской · спокойный' },
+  { id: 'am_fenrir', name: 'Fenrir', desc: 'Американский · мужской · низкий' },
+  { id: 'bf_emma', name: 'Emma', desc: 'Британский · женский' },
+  { id: 'bm_george', name: 'George', desc: 'Британский · мужской' }
+];
+const VOICE_SAMPLE = "Hello! Let's learn some English today.";
+const audioKey = s => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(36); };
+const packOK = typeof AUDIO_KEYS !== 'undefined';
+const packUrl = (voice, text) => { const k = audioKey(String(text).trim()); return packOK && AUDIO_KEYS.has(k) ? `audio/${voice}/${k}.mp3` : null; };
+const player = new Audio();
+player.preload = 'auto';
+// iOS разрешает звук только после касания: «разблокируем» плеер тихим файлом при первом касании
+const SILENT = 'data:audio/mpeg;base64,//NAxAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80LEWwAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVX/80DEpAAAA0gAAAAAVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsSjAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NCxKMAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+let audioUnlocked = false;
+document.addEventListener('pointerdown', () => {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  if (!player.src) { player.src = SILENT; const p = player.play(); if (p && p.catch) p.catch(() => {}); }
+}, { capture: true });
+
+// «Сейчас не могу слушать»: mute = 0 (звук есть) | 1 (пока не включу) | время окончания
+const isMuted = () => S.mute === 1 || S.mute > Date.now();
+function setMute(v) {
+  S.mute = v; save(); stopAudio();
+  if (v) toast(v === 1 ? 'Звук выключен. Аудио-задания пропускаются' : `Звук выключен до ${new Date(v).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`);
+  else { toast('Звук включён'); }
+}
+const muteHour = () => setMute(Date.now() + 3600000);
+function stopAudio() {
+  try { player.pause(); } catch (e) {}
+  if (ttsOK) try { speechSynthesis.cancel(); } catch (e) {}
+}
+function playVoice(voice, text, slow) {
+  const url = voice !== 'device' && packUrl(voice, text);
+  if (url) {
+    player.src = url;
+    player.playbackRate = Math.max(0.5, (S.rate || 1) * (slow ? 0.7 : 1));
+    const p = player.play();
+    if (p && p.catch) p.catch(() => {});
+    return true;
+  }
+  return ttsSpeak(text, slow);
+}
+function speak(text, slow) {
+  if (!text || isMuted()) return;
+  stopAudio();
+  playVoice(S.pack || VOICES[0].id, String(text).trim(), slow);
+}
+// Прогрев кэша: скачиваем звук следующего задания заранее
+function prefetch(text) {
+  if (!text || isMuted()) return;
+  const url = packUrl(S.pack || VOICES[0].id, text);
+  if (url && window.fetch) fetch(url).catch(() => {});
+}
+
+/* --- голос устройства (запасной) --- */
 const ttsOK = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 let enVoices = [];
 function voiceScore(v) {
@@ -171,19 +233,21 @@ if (ttsOK) {
   speechSynthesis.onvoiceschanged = () => { loadVoices(); if (stack.length && stack[stack.length - 1].name === 'settings') render(); };
 }
 const currentVoice = () => (S.voice && enVoices.find(v => v.voiceURI === S.voice)) || enVoices[0] || null;
-function speak(text, slow) {
-  if (!ttsOK || !text) return;
+function ttsSpeak(text, slow) {
+  if (!ttsOK) return false;
   try {
-    speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const v = currentVoice();
     if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
-    u.rate = (S.rate || 0.9) * (slow ? 0.65 : 1);
+    u.rate = (S.rate || 1) * (slow ? 0.65 : 1);
     speechSynthesis.speak(u);
-  } catch (e) {}
+    return true;
+  } catch (e) { return false; }
 }
+const audioOK = () => packOK || ttsOK;
+const canListen = () => audioOK() && !isMuted();
 const autoSay = text => { if (S.autoSay) speak(text); };
-const sayBtn = (t, cls = '') => ttsOK ? `<button type="button" class="say ${cls}" data-say="${esc(t)}" aria-label="Озвучить">${ic('vol')}</button>` : '';
+const sayBtn = (t, cls = '') => audioOK() && !isMuted() ? `<button type="button" class="say ${cls}" data-say="${esc(t)}" aria-label="Озвучить">${ic('vol')}</button>` : '';
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-say]');
   if (b) speak(b.dataset.say, b.dataset.slow === '1');
@@ -235,7 +299,7 @@ const lvIdx = () => Math.max(0, LEVELS.indexOf(S.level));
 const LS_KEY = 'engtrainer_v1';
 function fresh() {
   return {
-    v: 2, updated: 0, level: null, goal: 20, newPerDay: 10, autoSay: true, sound: true, voice: '', rate: 0.9,
+    v: 3, updated: 0, level: null, goal: 20, newPerDay: 10, autoSay: true, sound: true, voice: '', rate: 1, pack: VOICES[0].id, mute: 0,
     cards: {}, custom: [], days: {}, gstats: {}, streak: { n: 0, last: 0 },
     xpTotal: 0, lessons: 0, best: { sprint: 0, savanna: 0 }, dlg: {}
   };
@@ -244,6 +308,7 @@ function migrate(obj) {
   const s = Object.assign(fresh(), obj);
   if (!obj.xpTotal) s.xpTotal = Object.values(s.days).reduce((a, d) => a + (d.xp || 0), 0);
   s.best = Object.assign({ sprint: 0, savanna: 0 }, s.best);
+  if (!obj.pack) { s.pack = VOICES[0].id; s.rate = 1; } // переход на записанные голоса
   return s;
 }
 function load() {
@@ -436,7 +501,7 @@ function resetTo(name) { stack.length = 0; stack.push({ name }); render(); }
 function leaveSession() { if (sess && sess.onLeave) { try { sess.onLeave(); } catch (e) {} } sess = null; stepKey = null; }
 function render() {
   leaveSession();
-  if (ttsOK) speechSynthesis.cancel();
+  stopAudio();
   const top = stack[stack.length - 1];
   const isTab = TABS.includes(top.name) && stack.length === 1;
   document.body.classList.toggle('has-tabs', isTab);
@@ -534,12 +599,13 @@ SCREENS.home = () => {
   const week = Array.from({ length: 7 }, (_, k) => t - dow + k);
   const heroTitle = nw && due ? 'Новые слова и повторение' : nw ? 'Новые слова' : due ? 'Повторение' : 'Практика изученного';
   const heroSub = [due ? `${due} повторить` : '', nw ? `${nw} ${plural(nw, 'новое', 'новых', 'новых')}` : '', 'около 5 мин'].filter(Boolean).join(' · ');
-  const games = GAMES.filter(g => !g.tts || ttsOK);
+  const games = GAMES.filter(g => !g.tts || audioOK());
   const vdue = dueVerbIds().length;
   view(`
     <header class="top">
       <div><div class="muted">${greet}</div><h1>${user && user.first_name ? esc(user.first_name) : 'Привет!'}</h1></div>
       <div class="chips">
+        <button class="chip sound ${isMuted() ? 'off' : ''}" id="mute" aria-label="${isMuted() ? 'Включить звук' : 'Сейчас не могу слушать'}">${ic(isMuted() ? 'volOff' : 'vol')}</button>
         <div class="chip ${streak() ? 'hot' : ''}" title="Серия дней">${ic('flame')}<b>${streak()}</b></div>
         <div class="chip" title="Уровень игрока">${ic('star')}<b>${lvl}</b></div>
       </div>
@@ -561,14 +627,19 @@ SCREENS.home = () => {
     }).join('')}</div>
     <h2 class="sec">Тренажёры</h2>
     <div class="grid">${games.map((g, k) => `<button class="tile" data-k="${k}"><div class="tile-ico">${ic(g.icon)}</div>
-      <div class="tile-title">${g.title}</div><div class="tile-sub">${g.go === 'cards' && due ? `${due} к повторению` : g.sub}</div></button>`).join('')}</div>
+      <div class="tile-title">${g.title}</div><div class="tile-sub">${g.tts && isMuted() ? 'Звук выключен' : g.go === 'cards' && due ? `${due} к повторению` : g.sub}</div></button>`).join('')}</div>
     <h2 class="sec">Теория</h2>
     <div class="list">
       <button class="row" data-go="grammar"><div class="row-ico">${ic('rule')}</div><div class="grow"><div class="row-title">Грамматика</div><div class="muted small">${DATA.grammar.length} тем с правилами и практикой</div></div>${ic('chev', 'chev')}</button>
       <button class="row" data-go="verbs"><div class="row-ico">${ic('repeat')}</div><div class="grow"><div class="row-title">Неправильные глаголы</div><div class="muted small">${vdue ? `${vdue} к повторению` : `${VERBS.length} глаголов`}</div></div>${ic('chev', 'chev')}</button>
     </div>`);
   click('#lesson', () => go('lesson', { mode: 'daily' }));
-  click('.tile', e => { const g = games[+e.currentTarget.dataset.k]; g.go ? go(g.go) : go('lesson', { mode: g.mode }); });
+  click('#mute', () => { isMuted() ? setMute(0) : setMute(1); render(); });
+  click('.tile', e => {
+    const g = games[+e.currentTarget.dataset.k];
+    if (g.tts && isMuted()) return confirmDlg('Звук выключен. Включить, чтобы тренировать аудирование?', () => { setMute(0); go('lesson', { mode: g.mode }); });
+    g.go ? go(g.go) : go('lesson', { mode: g.mode });
+  });
   click('[data-go]', e => go(e.currentTarget.dataset.go));
 };
 
@@ -581,8 +652,8 @@ const MODE_TITLE = { daily: 'Урок дня', pairs: 'Пары', listen: 'Ау�
 function reviewType(w) {
   const c = S.cards[w.id];
   const strong = c && c.r >= 2;
-  const opts = strong ? ['type', 'choiceRev', isSingle(w) ? 'letters' : 'type', ttsOK ? 'listen' : 'choiceRev']
-    : ['choice', 'choiceRev', ttsOK ? 'listen' : 'choice', isSingle(w) ? 'letters' : 'choiceRev'];
+  const opts = strong ? ['type', 'choiceRev', isSingle(w) ? 'letters' : 'type', canListen() ? 'listen' : 'choiceRev']
+    : ['choice', 'choiceRev', canListen() ? 'listen' : 'choice', isSingle(w) ? 'letters' : 'choiceRev'];
   return rnd(opts);
 }
 function fillWords(list, n) {
@@ -605,10 +676,10 @@ function buildDaily() {
   });
   review.slice(nw.length).forEach(w => tasks.push({ type: reviewType(w), w }));
   tasks.splice(Math.min(tasks.length, 5), 0, { type: 'pairs', ws: fillWords([...nw, ...review], 5) });
-  nw.forEach(w => tasks.push({ type: rnd(['choiceRev', isSingle(w) ? 'letters' : 'choiceRev', ttsOK ? 'listen' : 'choiceRev']), w }));
+  nw.forEach(w => tasks.push({ type: rnd(['choiceRev', isSingle(w) ? 'letters' : 'choiceRev', canListen() ? 'listen' : 'choiceRev']), w }));
   const ph = phrasesPick(2);
   const tail = [{ type: 'build', p: ph[0] }];
-  if (ph[1]) tail.push({ type: ttsOK && S.level !== 'A1' ? 'dictation' : 'build', p: ph[1] });
+  if (ph[1]) tail.push({ type: canListen() && S.level !== 'A1' ? 'dictation' : 'build', p: ph[1] });
   const topics = DATA.grammar.filter(t => topicMinLv(t) <= lvIdx());
   const tp = rnd(topics.length ? topics : DATA.grammar);
   tail.push({ type: 'gram', g: prepGram(tp, rnd(tp.qs)) });
@@ -642,6 +713,12 @@ function buildTasks(p) {
 }
 
 SCREENS.lesson = p => {
+  if (LISTEN_SWAP[p.mode] && isMuted()) {
+    view(`<div class="finish"><div class="trophy">${ic('volOff')}</div><h1>Звук выключен</h1><p class="muted">Включи звук, чтобы тренироваться на слух. Или выбери задание без аудио.</p></div>
+      <button class="btn primary" id="unmute">${ic('vol')} Включить звук</button>${homeBtn()}`);
+    click('#unmute', () => { setMute(0); render(); });
+    return bindHome();
+  }
   const tasks = buildTasks(p);
   if (!tasks.length) {
     view(`<div class="finish"><div class="trophy">${ic('target')}</div><h1>Пока нечего тренировать</h1><p class="muted">Сначала выучи несколько слов в уроке дня.</p></div>
@@ -657,14 +734,29 @@ function drawStep() {
   const s = sess;
   stepKey = null;
   if (s.i >= s.tasks.length) return finishLesson();
-  const t = s.tasks[s.i];
+  let t = s.tasks[s.i];
+  if (!canListen() && LISTEN_SWAP[t.type]) t = s.tasks[s.i] = { ...t, type: LISTEN_SWAP[t.type] }; // без звука — аудио-задание заменяем
   s.answered = false;
-  view(`<div class="lesson">${ltop(s.done / s.total, `<div class="combo ${s.combo >= 3 ? 'on' : ''}" id="combo">${ic('zap')}<b>${s.combo}</b></div>`)}
+  view(`<div class="lesson">${ltop(s.done / s.total, `${audioOK() ? `<button class="icon-btn ${isMuted() ? 'off' : ''}" id="snd" aria-label="Звук">${ic(isMuted() ? 'volOff' : 'vol')}</button>` : ''}
+    <div class="combo ${s.combo >= 3 ? 'on' : ''}" id="combo">${ic('zap')}<b>${s.combo}</b></div>`)}
     ${t.retry ? `<div class="retry-tag">${ic('repeat')} Исправляем ошибку</div>` : ''}
     <div class="lbody" id="ex"></div><div class="lfoot" id="foot"></div></div>`);
   click('#close', back);
+  click('#snd', () => {
+    isMuted() ? setMute(0) : muteHour();
+    if (!s.answered && LISTEN_SWAP[s.tasks[s.i].type] && isMuted()) return drawStep();
+    const b = $('#snd'); if (b) { b.classList.toggle('off', isMuted()); b.innerHTML = ic(isMuted() ? 'volOff' : 'vol'); }
+  });
   EX[t.type](t, $('#ex'), $('#foot'));
+  if (LISTEN_SWAP[t.type]) {
+    $('#foot').insertAdjacentHTML('beforeend', `<button class="link" id="cantlisten">${ic('volOff')} Сейчас не могу слушать</button>`);
+    $('#cantlisten').addEventListener('click', () => { muteHour(); drawStep(); });
+  }
+  const next = s.tasks[s.i + 1];
+  if (next) prefetch(taskText(next));
 }
+const LISTEN_SWAP = { listen: 'choice', dictation: 'build' };
+const taskText = t => t.w ? t.w.en : t.p ? t.p.en : t.v ? t.v.base : null;
 const PRAISE = ['Отлично!', 'Супер!', 'Так держать!', 'Верно!', 'Блестяще!', 'Великолепно!', 'В точку!'];
 function rec(id, ok) { if (!sess || !sess.res || !id) return; sess.res[id] = sess.res[id] === undefined ? ok : sess.res[id] && ok; }
 function answer(correct, o = {}) {
@@ -872,8 +964,7 @@ EX.dictation = (t, ex, foot) => {
     <form id="f" autocomplete="off"><textarea id="inp" class="input area" rows="3" autocapitalize="sentences" autocorrect="off" spellcheck="false" placeholder="Напиши по-английски"></textarea></form>`;
   foot.innerHTML = '<div class="row2"><button class="btn ghost" id="giveup">Не могу</button><button class="btn primary" id="chk">Проверить</button></div>';
   const inp = $('#inp');
-  const s = sess;
-  setTimeout(() => { if (sess === s) speak(ph.en); }, 250);
+  speak(ph.en);
   inp.focus();
   const check = () => {
     if (sess.answered) return;
@@ -1437,26 +1528,30 @@ SCREENS.stats = () => {
 /* ---------- Настройки (вкладка) ---------- */
 SCREENS.settings = () => {
   const seg = (key, vals, fmt = v => v) => `<div class="seg" data-key="${key}">${vals.map(v => `<button class="${S[key] === v ? 'on' : ''}" data-v="${v}">${fmt(v)}</button>`).join('')}</div>`;
-  const best = enVoices[0];
   const voiceLabel = v => `${v.name.replace(/^Microsoft\s+|\s+Online|\s*\(Natural\)|\s+-\s+English.*$/gi, '')} · ${v.lang}`;
+  const pack = S.pack || VOICES[0].id;
+  const muteMode = !isMuted() ? 'off' : S.mute === 1 ? 'always' : 'hour';
+  const voiceRows = [...(packOK ? VOICES : []), ...(ttsOK ? [{ id: 'device', name: 'Голос устройства', desc: 'Встроенный синтезатор телефона' }] : [])];
   view(`<h1 class="title">Настройки</h1>
     <div class="setting"><label>Уровень английского</label>${seg('level', LEVELS)}</div>
     <div class="setting"><label>Цель дня (XP)</label>${seg('goal', [10, 20, 30, 50])}</div>
     <div class="setting"><label>Новых слов в день</label>${seg('newPerDay', [5, 10, 15, 20, 30])}</div>
-    <h2 class="sec">Озвучка</h2>
-    ${ttsOK ? `
-      <div class="setting"><label>Голос</label>
-        <select class="input select" id="voice">
-          <option value="">Авто — лучший голос${best ? ` (${esc(voiceLabel(best))})` : ''}</option>
-          ${enVoices.map(v => `<option value="${esc(v.voiceURI)}" ${S.voice === v.voiceURI ? 'selected' : ''}>${voiceScore(v) >= 60 ? '★ ' : ''}${esc(voiceLabel(v))}</option>`).join('')}
-        </select>
-        ${enVoices.length ? '' : '<p class="muted small">Голоса ещё загружаются…</p>'}
-      </div>
-      <div class="setting"><label>Скорость речи</label>${seg('rate', [0.7, 0.85, 1, 1.15], v => v + '×')}</div>
-      <button class="btn ghost" id="testv">${ic('vol')} Прослушать</button>
-      <div class="list"><label class="row"><span class="grow">Озвучивать слова автоматически</span><input type="checkbox" class="switch" id="say" ${S.autoSay ? 'checked' : ''}></label></div>
-      <p class="muted small">★ — качественные голоса. Если хороших нет: на iPhone скачай голос с пометкой «улучшенный» (Настройки → Универсальный доступ → Устный контент → Голоса → English), на Android установи «Синтезатор речи Google».</p>`
-      : '<p class="muted small">Озвучка не поддерживается на этом устройстве.</p>'}
+    <h2 class="sec">Голос</h2>
+    ${voiceRows.length ? `<div class="list voices">${voiceRows.map(v => `
+      <div class="row voice ${pack === v.id ? 'on' : ''}" data-voice="${v.id}" role="radio" aria-checked="${pack === v.id}" tabindex="0">
+        <span class="radio"></span>
+        <div class="grow"><div class="row-title">${esc(v.name)}</div><div class="muted small">${esc(v.desc)}</div></div>
+        <button class="say sm" data-sample="${v.id}" aria-label="Прослушать ${esc(v.name)}">${ic('play')}</button>
+      </div>`).join('')}</div>` : '<p class="muted small">Озвучка недоступна.</p>'}
+    ${pack === 'device' && ttsOK ? `<div class="setting" style="margin-top:12px"><label>Голос устройства</label>
+      <select class="input select" id="voice"><option value="">Авто — лучший доступный</option>
+      ${enVoices.map(v => `<option value="${esc(v.voiceURI)}" ${S.voice === v.voiceURI ? 'selected' : ''}>${voiceScore(v) >= 60 ? '★ ' : ''}${esc(voiceLabel(v))}</option>`).join('')}</select></div>` : ''}
+    <div class="setting" style="margin-top:16px"><label>Скорость речи</label>${seg('rate', [0.7, 0.85, 1, 1.15], v => v + '×')}</div>
+    <div class="list"><label class="row"><span class="grow">Озвучивать слова автоматически</span><input type="checkbox" class="switch" id="say" ${S.autoSay ? 'checked' : ''}></label></div>
+    <p class="muted small">Голоса Heart, Bella, Michael, Fenrir, Emma и George — нейросетевые записи (Kokoro TTS). Слова, которые ты добавил сам, читает голос устройства.</p>
+    <h2 class="sec">Сейчас не могу слушать</h2>
+    <div class="seg" id="muteSeg">${[['off', 'Звук включён'], ['hour', 'На 1 час'], ['always', 'Пока не включу']].map(([k, l]) => `<button class="${muteMode === k ? 'on' : ''}" data-m="${k}">${l}</button>`).join('')}</div>
+    <p class="muted small">Без звука аудиовызов и диктант заменяются заданиями на чтение, озвучка и звуки отключаются.${muteMode === 'hour' ? ` Звук вернётся в ${new Date(S.mute).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}.` : ''}</p>
     <h2 class="sec">Другое</h2>
     <div class="list"><label class="row"><span class="grow">Звуки ответов</span><input type="checkbox" class="switch" id="snd" ${S.sound ? 'checked' : ''}></label></div>
     <button class="btn ghost" id="test">Пройти тест уровня</button>
@@ -1466,12 +1561,27 @@ SCREENS.settings = () => {
     const b = e.currentTarget, key = b.parentElement.dataset.key, raw = b.dataset.v;
     S[key] = isNaN(raw) ? raw : +raw;
     save(); haptic('light'); sfx.tap();
-    if (key === 'rate') speak('This is how fast I speak.');
+    render();
+    if (key === 'rate') speak(VOICE_SAMPLE);
+  });
+  click('.voice', e => {
+    if (e.target.closest('[data-sample]')) return;
+    S.pack = e.currentTarget.dataset.voice; save(); haptic('light');
+    render();
+    if (isMuted()) toast('Сейчас звук выключен'); else speak(VOICE_SAMPLE);
+  });
+  click('[data-sample]', e => {
+    e.stopPropagation();
+    if (isMuted()) return toast('Сейчас звук выключен');
+    stopAudio(); playVoice(e.currentTarget.dataset.sample, VOICE_SAMPLE);
+  });
+  click('#muteSeg button', e => {
+    const m = e.currentTarget.dataset.m;
+    setMute(m === 'off' ? 0 : m === 'always' ? 1 : Date.now() + 3600000);
     render();
   });
   const sel = $('#voice');
-  if (sel) sel.addEventListener('change', () => { S.voice = sel.value; save(); speak('Hello! This is my voice.'); });
-  click('#testv', () => speak("Hello! Let's learn some English today."));
+  if (sel) sel.addEventListener('change', () => { S.voice = sel.value; save(); speak(VOICE_SAMPLE); });
   const sw = $('#say'); if (sw) sw.addEventListener('change', () => { S.autoSay = sw.checked; save(); });
   const sn = $('#snd'); sn.addEventListener('change', () => { S.sound = sn.checked; save(); sfx.ok(); });
   click('#test', () => go('placement'));

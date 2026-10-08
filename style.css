@@ -459,3 +459,16 @@ label.row { cursor: pointer; }
 #cont:focus-visible { outline: none; }
 .sprint .sprint-btns { margin-top: auto; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
 .sprint .sprint-card { margin-top: 18px; }
+
+/* Голоса и режим без звука */
+.voices .voice { cursor: pointer; }
+.voice .radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-2); flex: none; display: grid; place-items: center; transition: border-color .15s; }
+.voice.on { background: var(--accent-soft); }
+.voice.on .radio { border-color: var(--accent); }
+.voice.on .radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.voice .say svg { width: 14px; height: 14px; }
+.chip.sound { color: var(--text); padding: 8px 10px; }
+.chip.sound svg { color: var(--accent); }
+.chip.sound.off svg, .icon-btn.off { color: var(--bad); }
+.link svg { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; }
+#cantlisten { color: var(--text-2); }
